@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: #FEF9F3;
+    color: #1e293b;
+    font-family: 'Inter', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', 'Inter', sans-serif;
+  }
+}
+
+/* Custom Utilities for Bright Minds Brand */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-900 via-indigo-700 to-amber-500;
+}
+
+.bg-brand-gradient {
+  background: linear-gradient(135deg, #312E81 0%, #1E1B4B 100%);
+}
+
+.bg-amber-gradient {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
