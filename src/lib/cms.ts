@@ -1,15 +1,14 @@
 /**
- * Headless CMS & Backend Adapter (Convex / Strapi / Sanity / Contentful)
+ * Headless CMS Adapter & Integration Layer
  * 
  * Bright Minds Learning Architecture
  * This module provides clean abstraction functions for fetching courses, tutors,
- * and user profiles from Headless CMS platforms or Convex backend.
+ * and user profiles from headless CMS platforms (Strapi v4/v5, Sanity.io, or Contentful).
  * 
- * Supported CMS Options:
- * 1. 'convex'    - Reactive TypeScript backend (Convex.dev) - RECOMMENDED
- * 2. 'strapi'    - Open-source self-hosted REST API
- * 3. 'sanity'    - Managed Cloud CMS with GROQ queries
- * 4. 'mock'      - Local mock data array fallback
+ * To switch from mock data to a live CMS:
+ * 1. Set VITE_CMS_TYPE in your .env file ('strapi' | 'sanity' | 'contentful' | 'mock')
+ * 2. Configure VITE_CMS_API_URL and VITE_CMS_API_TOKEN.
+ * 3. Replace mock returns below with the provided production fetch methods.
  */
 
 import { Course, Tutor } from '../types';
@@ -19,33 +18,16 @@ import { mockTutors } from '../data/tutors';
 const CMS_TYPE = import.meta.env.VITE_CMS_TYPE || 'mock';
 const CMS_API_URL = import.meta.env.VITE_CMS_API_URL || 'http://localhost:1337/api';
 const CMS_API_TOKEN = import.meta.env.VITE_CMS_API_TOKEN || '';
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || '';
 
 /**
- * Fetch all published courses from CMS, Convex, or Mock
+ * Fetch all published courses from CMS or Mock
  */
 export async function fetchCoursesFromCMS(): Promise<Course[]> {
   if (CMS_TYPE === 'mock') {
     return Promise.resolve(mockCourses);
   }
 
-  // --- Example 1: CONVEX Backend Integration ---
-  if (CMS_TYPE === 'convex') {
-    try {
-      const res = await fetch(`${CONVEX_URL}/api/query`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ path: 'courses:listPublishedCourses', args: {} }),
-      });
-      const json = await res.json();
-      return json.value;
-    } catch (e) {
-      console.error('Convex fetch failed, falling back to mock courses', e);
-      return mockCourses;
-    }
-  }
-
-  // --- Example 2: STRAPI v4/v5 Integration ---
+  // --- Example 1: STRAPI v4/v5 Integration ---
   if (CMS_TYPE === 'strapi') {
     const res = await fetch(`${CMS_API_URL}/courses?populate=*`, {
       headers: {
@@ -82,7 +64,7 @@ export async function fetchCoursesFromCMS(): Promise<Course[]> {
     }));
   }
 
-  // --- Example 3: SANITY.IO GROQ Query ---
+  // --- Example 2: SANITY.IO GROQ Query ---
   if (CMS_TYPE === 'sanity') {
     const query = encodeURIComponent(`*[_type == "course"]{
       _id, title, subject, level, mode, price, rating, reviewsCount, description, duration,
@@ -105,21 +87,6 @@ export async function fetchCoursesFromCMS(): Promise<Course[]> {
 export async function fetchTutorsFromCMS(): Promise<Tutor[]> {
   if (CMS_TYPE === 'mock') {
     return Promise.resolve(mockTutors);
-  }
-
-  if (CMS_TYPE === 'convex') {
-    try {
-      const res = await fetch(`${CONVEX_URL}/api/query`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ path: 'tutors:listVerifiedTutors', args: {} }),
-      });
-      const json = await res.json();
-      return json.value;
-    } catch (e) {
-      console.error(e);
-      return mockTutors;
-    }
   }
 
   if (CMS_TYPE === 'strapi') {
